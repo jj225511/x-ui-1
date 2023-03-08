@@ -1,0 +1,57 @@
+name: build
+
+on:
+  push:
+    branches: [ 'main' ]
+  pull_request:
+    branches: [ 'main' ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest]
+        go-version: [1.19]
+    name: Build
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo snap install zig --classic --beta
+          docker pull crazymax/xgo:latest
+          go install github.com/crazy-max/xgo@latest
+          sudo apt install upx
+      - name: Build
+        run: |
+          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o xui-release -v main.go
+          mkdir x-ui
+          cp xui-release x-ui/xui-release
+          cp x-ui.service x-ui/x-ui.service
+          cp x-ui.sh x-ui/x-ui.sh
+          cd x-ui
+          mv xui-release x-ui
+          mkdir bin
+          cd bin
+          wget https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
+          unzip Xray-linux-64.zip
+          rm -f Xray-linux-64.zip geoip.dat geosite.dat
+          wget https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
+          wget https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat
+          mv xray xray-linux-amd64
+          cd ..
+          cd ..
+      - name: package
+        run: tar -zcvf x-ui-linux-amd64.tar.gz x-ui
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: x-ui-linux-amd64.tar.gz
+          path: x-ui-linux-amd64.tar.gz
