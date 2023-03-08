@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  release:
     strategy:
       matrix:
         platform: [ubuntu-latest]
