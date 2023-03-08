@@ -9,13 +9,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GAYHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
@@ -53,14 +50,10 @@ jobs:
       - name: package
         run: tar -zcvf x-ui-linux-amd64.tar.gz x-ui
       - name: upload
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GAYHUB_TOKEN }}
+        uses: actions/upload-artifact@v3
         with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: x-ui-linux-amd64.tar.gz
-          asset_name: x-ui-linux-amd64.tar.gz
-          asset_content_type: application/gzip
+          path: x-ui-linux-amd64.tar.gz
+          name: x-ui-linux-amd64.tar.gz
   linuxarm64build:
     name: build x-ui arm64 version
     needs: release
@@ -95,14 +88,10 @@ jobs:
       - name: package
         run: tar -zcvf x-ui-linux-arm64.tar.gz x-ui
       - name: upload
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GAYHUB_TOKEN }}
+        uses: actions/upload-artifact@v3
         with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: x-ui-linux-arm64.tar.gz
-          asset_name: x-ui-linux-arm64.tar.gz
-          asset_content_type: application/gzip
+          path: x-ui-linux-arm64.tar.gz
+          name: x-ui-linux-arm64.tar.gz
   linuxs390xbuild:
     name: build x-ui s390x version
     needs: release
@@ -137,11 +126,7 @@ jobs:
       - name: package
         run: tar -zcvf x-ui-linux-s390x.tar.gz x-ui
       - name: upload
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GAYHUB_TOKEN }}
+        uses: actions/upload-artifact@v3
         with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: x-ui-linux-s390x.tar.gz
-          asset_name: x-ui-linux-s390x.tar.gz
-          asset_content_type: application/gzip
+          path: x-ui-linux-s390x.tar.gz
+          name: x-ui-linux-s390x.tar.gz
